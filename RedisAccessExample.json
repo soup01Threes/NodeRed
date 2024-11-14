@@ -1,0 +1,1542 @@
+[
+    {
+        "id": "2db5d285fefc3333",
+        "type": "tab",
+        "label": "REDIS Access",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "cc7d133814a94af0",
+        "type": "inject",
+        "z": "2db5d285fefc3333",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 460,
+        "y": 100,
+        "wires": [
+            [
+                "b139037760a67ada"
+            ]
+        ]
+    },
+    {
+        "id": "b139037760a67ada",
+        "type": "redis-command",
+        "z": "2db5d285fefc3333",
+        "server": "052f29aa9bae14b0",
+        "command": "GET",
+        "name": "",
+        "topic": "name",
+        "params": "",
+        "paramsType": "json",
+        "payloadType": "json",
+        "block": false,
+        "x": 860,
+        "y": 100,
+        "wires": [
+            [
+                "e2c8a79c4a6b765f"
+            ]
+        ]
+    },
+    {
+        "id": "0b9fdb5313dfa25c",
+        "type": "redis-command",
+        "z": "2db5d285fefc3333",
+        "server": "155b04bf83678f3c",
+        "command": "INFO",
+        "name": "",
+        "topic": "",
+        "params": "",
+        "paramsType": "json",
+        "payloadType": "json",
+        "block": false,
+        "x": 850,
+        "y": 240,
+        "wires": [
+            [
+                "7f7acd6bcb917431"
+            ]
+        ]
+    },
+    {
+        "id": "2cf5bdde2d1cab14",
+        "type": "inject",
+        "z": "2db5d285fefc3333",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 440,
+        "y": 240,
+        "wires": [
+            [
+                "0b9fdb5313dfa25c"
+            ]
+        ]
+    },
+    {
+        "id": "7f7acd6bcb917431",
+        "type": "function",
+        "z": "2db5d285fefc3333",
+        "name": "function 10",
+        "func": "function parseRedisResponse(redisResponse) {\n    const lines = redisResponse.split('\\n');\n    const result = {};\n    let currentCategory = \"\";\n\n    lines.forEach(line => {\n        line = line.trim();\n\n        if (!line || line.startsWith('*')) {\n            // Ignore empty lines and lines starting with an asterisk\n            return;\n        }\n\n        if (line.startsWith('#')) {\n            // This line indicates a new category, so prepare an object for it\n            currentCategory = line.slice(2).toLowerCase(); // Remove \"# \" and lowercase the category\n            result[currentCategory] = {};\n        } else if (currentCategory) {\n            // Split the line into key and value, and add them to the current category in the result\n            const [key, value] = line.split(':');\n            result[currentCategory][key] = isNaN(value) ? value : Number(value);\n        }\n    });\n\n    return result;\n}\n\nconst redisResponse = msg.payload;\n\n\nconst jsonData = parseRedisResponse(redisResponse);\nmsg.payload = jsonData;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1050,
+        "y": 240,
+        "wires": [
+            [
+                "ac434d32a24d94ac"
+            ]
+        ],
+        "info": "# Server\r\nredis_version:7.4.1\r\nredis_git_sha1:00000000\r\nredis_git_dirty:0\r\nredis_build_id:4b8bad7b0569731f\r\nredis_mode:standalone\r\nos:Linux 6.6.31+rpt-rpi-v8 aarch64\r\narch_bits:64\r\nmonotonic_clock:POSIX clock_gettime\r\nmultiplexing_api:epoll\r\natomicvar_api:c11-builtin\r\ngcc_version:11.4.0\r\nprocess_id:9\r\nprocess_supervised:no\r\nrun_id:8301021020dfd866e83f5ce7914d67d30d18cd1a\r\ntcp_port:6379\r\nserver_time_usec:1730498230682793\r\nuptime_in_seconds:58684\r\nuptime_in_days:0\r\nhz:10\r\nconfigured_hz:10\r\nlru_clock:2444982\r\nexecutable:/opt/redis-stack/bin/redis-server\r\nconfig_file:\r\nio_threads_active:0\r\nlistener0:name=tcp,bind=*,bind=-::*,port=6379\r\n\r\n# Clients\r\nconnected_clients:1\r\ncluster_connections:0\r\nmaxclients:10000\r\nclient_recent_max_input_buffer:16392\r\nclient_recent_max_output_buffer:0\r\nblocked_clients:0\r\ntracking_clients:0\r\npubsub_clients:0\r\nwatching_clients:0\r\nclients_in_timeout_table:0\r\ntotal_watched_keys:0\r\ntotal_blocking_keys:0\r\ntotal_blocking_keys_on_nokey:0\r\n`;"
+    },
+    {
+        "id": "24eb9e1537e1dcd7",
+        "type": "inject",
+        "z": "2db5d285fefc3333",
+        "name": "GET mytime",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "mytime",
+        "payload": "",
+        "payloadType": "date",
+        "x": 450,
+        "y": 360,
+        "wires": [
+            [
+                "09c05067377f0da5"
+            ]
+        ]
+    },
+    {
+        "id": "f5f94a8cc4a8d71b",
+        "type": "redis-command",
+        "z": "2db5d285fefc3333",
+        "server": "155b04bf83678f3c",
+        "command": "SET",
+        "name": "",
+        "topic": "",
+        "params": "",
+        "paramsType": "json",
+        "payloadType": "json",
+        "block": false,
+        "x": 840,
+        "y": 320,
+        "wires": [
+            [
+                "d17cc7a8a1e9e044"
+            ]
+        ]
+    },
+    {
+        "id": "05351d71e96691bc",
+        "type": "inject",
+        "z": "2db5d285fefc3333",
+        "name": "SET [\"mytime\",\"5678\"]",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[\"mytime\",\"5678\"]",
+        "payloadType": "json",
+        "x": 480,
+        "y": 320,
+        "wires": [
+            [
+                "f5f94a8cc4a8d71b"
+            ]
+        ]
+    },
+    {
+        "id": "cc478df6ee0007ba",
+        "type": "inject",
+        "z": "2db5d285fefc3333",
+        "name": "SADD via Function",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 470,
+        "y": 440,
+        "wires": [
+            [
+                "10ce26aa0e582ee6"
+            ]
+        ]
+    },
+    {
+        "id": "10ce26aa0e582ee6",
+        "type": "function",
+        "z": "2db5d285fefc3333",
+        "name": "function 11",
+        "func": "msg.payload = [\"a1\", \"b1\"];\nmsg.topic=\"data1\";\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 690,
+        "y": 440,
+        "wires": [
+            [
+                "47b1a1df79cd47ae"
+            ]
+        ]
+    },
+    {
+        "id": "6a0849b91a7c7d66",
+        "type": "inject",
+        "z": "2db5d285fefc3333",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[\"a\",1,\"b\",2]",
+        "payloadType": "json",
+        "x": 440,
+        "y": 520,
+        "wires": [
+            [
+                "8b80044ad36a12c5"
+            ]
+        ]
+    },
+    {
+        "id": "8b80044ad36a12c5",
+        "type": "redis-command",
+        "z": "2db5d285fefc3333",
+        "server": "155b04bf83678f3c",
+        "command": "MSET",
+        "name": "",
+        "topic": "",
+        "params": "",
+        "paramsType": "json",
+        "payloadType": "json",
+        "block": false,
+        "x": 870,
+        "y": 520,
+        "wires": [
+            [
+                "0eb3d07114e79c8f"
+            ]
+        ]
+    },
+    {
+        "id": "7db50bc9345e5bea",
+        "type": "redis-command",
+        "z": "2db5d285fefc3333",
+        "server": "155b04bf83678f3c",
+        "command": "hmset",
+        "name": "",
+        "topic": "",
+        "params": "[]",
+        "paramsType": "json",
+        "payloadType": "json",
+        "block": false,
+        "x": 870,
+        "y": 1100,
+        "wires": [
+            [
+                "61eea5711f8647db"
+            ]
+        ]
+    },
+    {
+        "id": "71f0cbf4a674dd51",
+        "type": "comment",
+        "z": "2db5d285fefc3333",
+        "name": "SET",
+        "info": "",
+        "x": 390,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "cf107b1f680f5a6a",
+        "type": "inject",
+        "z": "2db5d285fefc3333",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "m",
+        "payload": "[\"b\"]",
+        "payloadType": "json",
+        "x": 430,
+        "y": 560,
+        "wires": [
+            [
+                "925b4f33b5c680b2"
+            ]
+        ]
+    },
+    {
+        "id": "925b4f33b5c680b2",
+        "type": "redis-command",
+        "z": "2db5d285fefc3333",
+        "server": "a0efbb89.5e42d8",
+        "command": "SREM",
+        "name": "",
+        "topic": "",
+        "params": "[]",
+        "paramsType": "json",
+        "payloadType": "json",
+        "block": false,
+        "x": 870,
+        "y": 560,
+        "wires": [
+            [
+                "3e776ab02e36da59"
+            ]
+        ]
+    },
+    {
+        "id": "47b1a1df79cd47ae",
+        "type": "redis-command",
+        "z": "2db5d285fefc3333",
+        "server": "a0efbb89.5e42d8",
+        "command": "SADD",
+        "name": "",
+        "topic": "",
+        "params": "[]",
+        "paramsType": "json",
+        "payloadType": "json",
+        "block": false,
+        "x": 870,
+        "y": 480,
+        "wires": [
+            [
+                "570979134c3517c4"
+            ]
+        ]
+    },
+    {
+        "id": "030f6a27fbf74999",
+        "type": "inject",
+        "z": "2db5d285fefc3333",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "m",
+        "payload": "[\"a\",\"b\"]",
+        "payloadType": "json",
+        "x": 440,
+        "y": 480,
+        "wires": [
+            [
+                "47b1a1df79cd47ae"
+            ]
+        ]
+    },
+    {
+        "id": "f1cd38a01d23541d",
+        "type": "inject",
+        "z": "2db5d285fefc3333",
+        "name": "SADD plc set",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "plc",
+        "payload": "[\"beckhoff\",\"codesys\",\"omron\",\"pilz\"]",
+        "payloadType": "json",
+        "x": 450,
+        "y": 620,
+        "wires": [
+            [
+                "23b960c1c8f1d3c4"
+            ]
+        ]
+    },
+    {
+        "id": "23b960c1c8f1d3c4",
+        "type": "redis-command",
+        "z": "2db5d285fefc3333",
+        "server": "a0efbb89.5e42d8",
+        "command": "SADD",
+        "name": "",
+        "topic": "",
+        "params": "[]",
+        "paramsType": "json",
+        "payloadType": "json",
+        "block": false,
+        "x": 870,
+        "y": 620,
+        "wires": [
+            [
+                "7c493b06c46d9fc9"
+            ]
+        ]
+    },
+    {
+        "id": "bab23ec33a1e55b5",
+        "type": "inject",
+        "z": "2db5d285fefc3333",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "plc",
+        "payload": "",
+        "payloadType": "date",
+        "x": 450,
+        "y": 660,
+        "wires": [
+            [
+                "8f727e694927d77a"
+            ]
+        ]
+    },
+    {
+        "id": "8f727e694927d77a",
+        "type": "redis-command",
+        "z": "2db5d285fefc3333",
+        "server": "a0efbb89.5e42d8",
+        "command": "SUNION",
+        "name": "",
+        "topic": "",
+        "params": "[]",
+        "paramsType": "json",
+        "payloadType": "json",
+        "block": false,
+        "x": 880,
+        "y": 660,
+        "wires": [
+            [
+                "edb8103ceb674581"
+            ]
+        ]
+    },
+    {
+        "id": "153089b8ad9fcdd7",
+        "type": "inject",
+        "z": "2db5d285fefc3333",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "plc",
+        "payload": "[\"beckhoff\"]",
+        "payloadType": "json",
+        "x": 460,
+        "y": 700,
+        "wires": [
+            [
+                "59e017e6fac8c905"
+            ]
+        ]
+    },
+    {
+        "id": "59e017e6fac8c905",
+        "type": "redis-command",
+        "z": "2db5d285fefc3333",
+        "server": "155b04bf83678f3c",
+        "command": "SISMEMBER",
+        "name": "",
+        "topic": "",
+        "params": "[]",
+        "paramsType": "json",
+        "payloadType": "json",
+        "block": false,
+        "x": 890,
+        "y": 700,
+        "wires": [
+            [
+                "4997685cda8b5d67"
+            ]
+        ]
+    },
+    {
+        "id": "e6e6f5f57fa5ba6b",
+        "type": "inject",
+        "z": "2db5d285fefc3333",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "plc",
+        "payload": "[\"keyence\"]",
+        "payloadType": "json",
+        "x": 460,
+        "y": 740,
+        "wires": [
+            [
+                "59e017e6fac8c905"
+            ]
+        ]
+    },
+    {
+        "id": "a441f672146e1852",
+        "type": "comment",
+        "z": "2db5d285fefc3333",
+        "name": "LIST",
+        "info": "",
+        "x": 390,
+        "y": 780,
+        "wires": []
+    },
+    {
+        "id": "c23be655eee4cebd",
+        "type": "inject",
+        "z": "2db5d285fefc3333",
+        "name": "LPUSH List plclist",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "plclist",
+        "payload": "[\"beckhoff\",\"codesys\",\"omron\",\"pilz\",\"pilz\",\"pilz\",\"beckhoff\"]",
+        "payloadType": "json",
+        "x": 470,
+        "y": 820,
+        "wires": [
+            [
+                "13e81b2d6a35ab21"
+            ]
+        ]
+    },
+    {
+        "id": "13e81b2d6a35ab21",
+        "type": "redis-command",
+        "z": "2db5d285fefc3333",
+        "server": "a0efbb89.5e42d8",
+        "command": "LPUSH",
+        "name": "",
+        "topic": "",
+        "params": "[]",
+        "paramsType": "json",
+        "payloadType": "json",
+        "block": false,
+        "x": 870,
+        "y": 820,
+        "wires": [
+            [
+                "e6ca11f019b8cbb4"
+            ]
+        ]
+    },
+    {
+        "id": "4ab0a8ebeaf5e5f3",
+        "type": "inject",
+        "z": "2db5d285fefc3333",
+        "name": "RPUSH List plclist",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "plclist",
+        "payload": "[\"mels\",\"mels\",\"salz\"]",
+        "payloadType": "json",
+        "x": 470,
+        "y": 860,
+        "wires": [
+            [
+                "b4c88d7e148308cf"
+            ]
+        ]
+    },
+    {
+        "id": "b4c88d7e148308cf",
+        "type": "redis-command",
+        "z": "2db5d285fefc3333",
+        "server": "a0efbb89.5e42d8",
+        "command": "RPUSH",
+        "name": "",
+        "topic": "",
+        "params": "[]",
+        "paramsType": "json",
+        "payloadType": "json",
+        "block": false,
+        "x": 870,
+        "y": 860,
+        "wires": [
+            [
+                "7db3955ea348afd8"
+            ]
+        ]
+    },
+    {
+        "id": "1cb30f41d1a7db8c",
+        "type": "comment",
+        "z": "2db5d285fefc3333",
+        "name": "Hash",
+        "info": "",
+        "x": 390,
+        "y": 1020,
+        "wires": []
+    },
+    {
+        "id": "be38068b4c48582a",
+        "type": "redis-command",
+        "z": "2db5d285fefc3333",
+        "server": "a0efbb89.5e42d8",
+        "command": "HMSET",
+        "name": "",
+        "topic": "",
+        "params": "",
+        "paramsType": "json",
+        "payloadType": "json",
+        "block": false,
+        "x": 870,
+        "y": 1060,
+        "wires": [
+            [
+                "6f6fd0d705664d8b"
+            ]
+        ]
+    },
+    {
+        "id": "089b12fdb12ec29c",
+        "type": "inject",
+        "z": "2db5d285fefc3333",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "myHash",
+        "payload": "{\"a\":1,\"b\":2}",
+        "payloadType": "json",
+        "x": 470,
+        "y": 1100,
+        "wires": [
+            [
+                "7db50bc9345e5bea"
+            ]
+        ]
+    },
+    {
+        "id": "e8c5b629f47b5b14",
+        "type": "inject",
+        "z": "2db5d285fefc3333",
+        "name": "HMSET HASH",
+        "props": [
+            {
+                "p": "topic",
+                "v": "[\"mels\",\"Q00\",0,\"R00\",2]",
+                "vt": "json"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 460,
+        "y": 1060,
+        "wires": [
+            [
+                "be38068b4c48582a"
+            ]
+        ]
+    },
+    {
+        "id": "9e236681e8852bd3",
+        "type": "redis-command",
+        "z": "2db5d285fefc3333",
+        "server": "155b04bf83678f3c",
+        "command": "HGET",
+        "name": "",
+        "topic": "",
+        "params": "",
+        "paramsType": "json",
+        "payloadType": "json",
+        "block": false,
+        "x": 870,
+        "y": 1140,
+        "wires": [
+            [
+                "67e44651f899de65"
+            ]
+        ]
+    },
+    {
+        "id": "afca5ba4e5ee0555",
+        "type": "inject",
+        "z": "2db5d285fefc3333",
+        "name": "",
+        "props": [
+            {
+                "p": "topic",
+                "v": "[\"mels\"]",
+                "vt": "json"
+            },
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[\"R00\"]",
+        "payloadType": "json",
+        "x": 430,
+        "y": 1140,
+        "wires": [
+            [
+                "9e236681e8852bd3"
+            ]
+        ]
+    },
+    {
+        "id": "b9ab3e0550dc0f01",
+        "type": "redis-command",
+        "z": "2db5d285fefc3333",
+        "server": "155b04bf83678f3c",
+        "command": "HMGET",
+        "name": "",
+        "topic": "",
+        "params": "",
+        "paramsType": "json",
+        "payloadType": "json",
+        "block": false,
+        "x": 880,
+        "y": 1180,
+        "wires": [
+            [
+                "6cb7a4212afc0711"
+            ]
+        ]
+    },
+    {
+        "id": "b59e0c47506379ee",
+        "type": "inject",
+        "z": "2db5d285fefc3333",
+        "name": "",
+        "props": [
+            {
+                "p": "topic",
+                "v": "[\"mels\"]",
+                "vt": "json"
+            },
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[\"Q00\",\"R00\",\"noInField\"]",
+        "payloadType": "json",
+        "x": 430,
+        "y": 1180,
+        "wires": [
+            [
+                "b9ab3e0550dc0f01"
+            ]
+        ]
+    },
+    {
+        "id": "4608b9c429eb99f7",
+        "type": "comment",
+        "z": "2db5d285fefc3333",
+        "name": "Basic Type",
+        "info": "",
+        "x": 400,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "e2c8a79c4a6b765f",
+        "type": "debug",
+        "z": "2db5d285fefc3333",
+        "name": "msg",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1230,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "0156f05c8e44418f",
+        "type": "comment",
+        "z": "2db5d285fefc3333",
+        "name": "Connect to Cloud",
+        "info": "",
+        "x": 400,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "18e769a65cd1faec",
+        "type": "comment",
+        "z": "2db5d285fefc3333",
+        "name": "Local Server",
+        "info": "",
+        "x": 390,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "ac434d32a24d94ac",
+        "type": "debug",
+        "z": "2db5d285fefc3333",
+        "name": "msg",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1230,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "d17cc7a8a1e9e044",
+        "type": "debug",
+        "z": "2db5d285fefc3333",
+        "name": "msg",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1230,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "3eb70a370742d9d3",
+        "type": "debug",
+        "z": "2db5d285fefc3333",
+        "name": "msg",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1230,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "c745416f3ab536c8",
+        "type": "comment",
+        "z": "2db5d285fefc3333",
+        "name": "INFO",
+        "info": "",
+        "x": 390,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "09c05067377f0da5",
+        "type": "redis-command",
+        "z": "2db5d285fefc3333",
+        "server": "155b04bf83678f3c",
+        "command": "GET",
+        "name": "",
+        "topic": "",
+        "params": "",
+        "paramsType": "json",
+        "payloadType": "json",
+        "block": false,
+        "x": 840,
+        "y": 360,
+        "wires": [
+            [
+                "3eb70a370742d9d3"
+            ]
+        ]
+    },
+    {
+        "id": "570979134c3517c4",
+        "type": "debug",
+        "z": "2db5d285fefc3333",
+        "name": "msg",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1230,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "0eb3d07114e79c8f",
+        "type": "debug",
+        "z": "2db5d285fefc3333",
+        "name": "msg",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1230,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "3e776ab02e36da59",
+        "type": "debug",
+        "z": "2db5d285fefc3333",
+        "name": "msg",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1230,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "7c493b06c46d9fc9",
+        "type": "debug",
+        "z": "2db5d285fefc3333",
+        "name": "msg",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1230,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "edb8103ceb674581",
+        "type": "debug",
+        "z": "2db5d285fefc3333",
+        "name": "msg",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1230,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "4997685cda8b5d67",
+        "type": "debug",
+        "z": "2db5d285fefc3333",
+        "name": "msg",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1230,
+        "y": 700,
+        "wires": []
+    },
+    {
+        "id": "e6ca11f019b8cbb4",
+        "type": "debug",
+        "z": "2db5d285fefc3333",
+        "name": "msg",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1230,
+        "y": 820,
+        "wires": []
+    },
+    {
+        "id": "7db3955ea348afd8",
+        "type": "debug",
+        "z": "2db5d285fefc3333",
+        "name": "msg",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1230,
+        "y": 860,
+        "wires": []
+    },
+    {
+        "id": "30150e17a049976b",
+        "type": "inject",
+        "z": "2db5d285fefc3333",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "plclist",
+        "payload": "\"2\"",
+        "payloadType": "json",
+        "x": 440,
+        "y": 900,
+        "wires": [
+            [
+                "9dd9c3d2a7a64a4b"
+            ]
+        ]
+    },
+    {
+        "id": "9dd9c3d2a7a64a4b",
+        "type": "redis-command",
+        "z": "2db5d285fefc3333",
+        "server": "155b04bf83678f3c",
+        "command": "RPOP",
+        "name": "",
+        "topic": "",
+        "params": "[]",
+        "paramsType": "json",
+        "payloadType": "json",
+        "block": false,
+        "x": 870,
+        "y": 900,
+        "wires": [
+            [
+                "374519a601944192"
+            ]
+        ]
+    },
+    {
+        "id": "374519a601944192",
+        "type": "debug",
+        "z": "2db5d285fefc3333",
+        "name": "msg",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1230,
+        "y": 900,
+        "wires": []
+    },
+    {
+        "id": "90f553ba85a6cedb",
+        "type": "inject",
+        "z": "2db5d285fefc3333",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "plclist",
+        "payload": "\"2\"",
+        "payloadType": "json",
+        "x": 440,
+        "y": 940,
+        "wires": [
+            [
+                "19d7e2a89ab3a292"
+            ]
+        ]
+    },
+    {
+        "id": "19d7e2a89ab3a292",
+        "type": "redis-command",
+        "z": "2db5d285fefc3333",
+        "server": "155b04bf83678f3c",
+        "command": "LPOP",
+        "name": "",
+        "topic": "",
+        "params": "[]",
+        "paramsType": "json",
+        "payloadType": "json",
+        "block": false,
+        "x": 870,
+        "y": 940,
+        "wires": [
+            [
+                "06a82bc22c838faf"
+            ]
+        ]
+    },
+    {
+        "id": "06a82bc22c838faf",
+        "type": "debug",
+        "z": "2db5d285fefc3333",
+        "name": "msg",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1230,
+        "y": 940,
+        "wires": []
+    },
+    {
+        "id": "46364624ccebb71e",
+        "type": "inject",
+        "z": "2db5d285fefc3333",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "plclist",
+        "payload": "[\"0\",\"2\"]",
+        "payloadType": "json",
+        "x": 450,
+        "y": 980,
+        "wires": [
+            [
+                "84f7632aac58cd4c"
+            ]
+        ]
+    },
+    {
+        "id": "84f7632aac58cd4c",
+        "type": "redis-command",
+        "z": "2db5d285fefc3333",
+        "server": "155b04bf83678f3c",
+        "command": "LRANGE",
+        "name": "",
+        "topic": "",
+        "params": "[]",
+        "paramsType": "json",
+        "payloadType": "json",
+        "block": false,
+        "x": 880,
+        "y": 980,
+        "wires": [
+            [
+                "1ea43d18a4d28ec0"
+            ]
+        ]
+    },
+    {
+        "id": "1ea43d18a4d28ec0",
+        "type": "debug",
+        "z": "2db5d285fefc3333",
+        "name": "msg",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1230,
+        "y": 980,
+        "wires": []
+    },
+    {
+        "id": "6f6fd0d705664d8b",
+        "type": "debug",
+        "z": "2db5d285fefc3333",
+        "name": "msg",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1230,
+        "y": 1060,
+        "wires": []
+    },
+    {
+        "id": "61eea5711f8647db",
+        "type": "debug",
+        "z": "2db5d285fefc3333",
+        "name": "msg",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1230,
+        "y": 1100,
+        "wires": []
+    },
+    {
+        "id": "67e44651f899de65",
+        "type": "debug",
+        "z": "2db5d285fefc3333",
+        "name": "msg",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1230,
+        "y": 1140,
+        "wires": []
+    },
+    {
+        "id": "6cb7a4212afc0711",
+        "type": "debug",
+        "z": "2db5d285fefc3333",
+        "name": "msg",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1230,
+        "y": 1180,
+        "wires": []
+    },
+    {
+        "id": "bbdb6a9880295c68",
+        "type": "redis-in",
+        "z": "2db5d285fefc3333",
+        "server": "155b04bf83678f3c",
+        "command": "subscribe",
+        "name": "",
+        "topic": "TOPIC:OK",
+        "obj": false,
+        "timeout": 0,
+        "x": 780,
+        "y": 1300,
+        "wires": [
+            [
+                "e87a95bfa49a9aeb"
+            ]
+        ]
+    },
+    {
+        "id": "e87a95bfa49a9aeb",
+        "type": "debug",
+        "z": "2db5d285fefc3333",
+        "name": "msg",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 970,
+        "y": 1300,
+        "wires": []
+    },
+    {
+        "id": "f4e7a062e9d76f2b",
+        "type": "inject",
+        "z": "2db5d285fefc3333",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"a\":1,\"b\":2}",
+        "payloadType": "json",
+        "x": 450,
+        "y": 1260,
+        "wires": [
+            [
+                "02d133dd0ec3ed0e"
+            ]
+        ]
+    },
+    {
+        "id": "02d133dd0ec3ed0e",
+        "type": "redis-out",
+        "z": "2db5d285fefc3333",
+        "server": "155b04bf83678f3c",
+        "command": "publish",
+        "name": "",
+        "topic": "TOPIC:OK",
+        "obj": true,
+        "x": 790,
+        "y": 1260,
+        "wires": []
+    },
+    {
+        "id": "30477e183f8e027b",
+        "type": "comment",
+        "z": "2db5d285fefc3333",
+        "name": "Pub/sub",
+        "info": "",
+        "x": 400,
+        "y": 1220,
+        "wires": []
+    },
+    {
+        "id": "052f29aa9bae14b0",
+        "type": "redis-config",
+        "name": "Cloud",
+        "options": "redis://yourusername:yourpassword@yourserverurl:yourport",
+        "cluster": false,
+        "optionsType": "str"
+    },
+    {
+        "id": "155b04bf83678f3c",
+        "type": "redis-config",
+        "name": "Local",
+        "options": "redis://192.168.13.159:6379",
+        "cluster": false,
+        "optionsType": "str"
+    },
+    {
+        "id": "a0efbb89.5e42d8",
+        "type": "redis-config",
+        "name": "local",
+        "options": "{}",
+        "cluster": false,
+        "optionsType": "json"
+    }
+]
